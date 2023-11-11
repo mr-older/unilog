@@ -2,7 +2,7 @@
 gi
 test*.php
 testing
-*.ini
 config
 logs
 vendor
+*.lock
