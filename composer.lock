@@ -1,0 +1,123 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3a9dc465ba1d6e8358f419d7d3123622",
+    "packages": [
+        {
+            "name": "mr-older/unidb",
+            "version": "v0.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mr-older/unidb.git",
+                "reference": "99c6b81690c4839b80c6891fbee31565dea362b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mr-older/unidb/zipball/99c6b81690c4839b80c6891fbee31565dea362b3",
+                "reference": "99c6b81690c4839b80c6891fbee31565dea362b3",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0 || ^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Unidb\\": "src/Unidb"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Universal PDO operations",
+            "homepage": "https://github.com/mr-older/unidb",
+            "keywords": [
+                "broker",
+                "database",
+                "db",
+                "pdo",
+                "php"
+            ],
+            "support": {
+                "source": "https://github.com/mr-older/unidb/tree/v0.0.0",
+                "issues": "https://github.com/mr-older/unidb/issues"
+            },
+            "time": "2023-11-10T22:26:17+00:00"
+        },
+        {
+            "name": "telegram-bot/api",
+            "version": "v2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TelegramBot/Api.git",
+                "reference": "eaae3526223db49a1bad76a2dfa501dc287979cf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TelegramBot/Api/zipball/eaae3526223db49a1bad76a2dfa501dc287979cf",
+                "reference": "eaae3526223db49a1bad76a2dfa501dc287979cf",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.16",
+                "symfony/phpunit-bridge": "*",
+                "vimeo/psalm": "^5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.5-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TelegramBot\\Api\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ilya Gusev",
+                    "email": "mail@igusev.ru",
+                    "homepage": "https://php-cat.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP Wrapper for Telegram Bot API",
+            "homepage": "https://github.com/TelegramBot/Api",
+            "keywords": [
+                "bot",
+                "bot api",
+                "php",
+                "telegram"
+            ],
+            "support": {
+                "issues": "https://github.com/TelegramBot/Api/issues",
+                "source": "https://github.com/TelegramBot/Api/tree/v2.5.0"
+            },
+            "time": "2023-08-09T13:53:12+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^7.0 || ^8.0"
+    },
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

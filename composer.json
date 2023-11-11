@@ -1,0 +1,32 @@
+{
+	"name": "mr-older/unilog",
+    "type": "library",
+	"license": "MIT",
+	"description": "Universal logger for logging 3",
+    "homepage": "https://github.com/mr-older/unilog",
+	"keywords": [
+		"logger",
+		"logging",
+		"log",
+		"debug",
+		"messaging",
+		"telegram",
+		"php"
+	],
+    "require": {
+		"php": "^7.0 || ^8.0",
+        "telegram-bot/api": ">=2.5.0",
+		"mr-older/unidb": ">=0.0.0"
+	},
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mr-older/unidb"
+        }
+    ],
+	"autoload": {
+		"psr-4": {
+			"Unilog\\": "src/Unilog"
+        }
+    }
+}
