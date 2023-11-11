@@ -6,10 +6,8 @@
     "homepage": "https://github.com/mr-older/unilog",
 	"keywords": [
 		"logger",
-		"logging",
 		"log",
-		"debug",
-		"messaging",
+		"database",
 		"telegram",
 		"php"
 	],

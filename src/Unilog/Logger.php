@@ -27,7 +27,7 @@ trait log2Database
 			$this->error = "Couldn`t connect to database: {$db_config["name"]}@{$db_config["host"]}";
 			return false;
 		}
-			
+
 		if($this->db->query("INSERT INTO {$this->destinations["database"]["table"]} VALUES (?)", ['s', $message]) === false) {
 			$this->error = "Couldn`t write to database {$db_config["name"]}@{$db_config["host"]}: {$this->db->error}";
 			var_dump($this->error);
