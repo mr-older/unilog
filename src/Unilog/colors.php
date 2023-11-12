@@ -15,7 +15,6 @@ define('FORE_CYAN',  "\e[0;36");
 define('FORE_LCYAN', "\e[1;36");
 define('FORE_LGREY', "\e[0;37");
 define('FORE_WHITE', "\e[1;37");
-
 define('BACK_BLACK', ';40m');
 define('BACK_RED',   ';41m');
 define('BACK_GREEN', ';42m');
