@@ -146,13 +146,11 @@ class Logger
 #	private $last_messages;	// Stores all kinds of last messages to know about their last time
 
     /**
-	* !! 
-	* @param  array $log_config[] =
+	* @param  array $log_config[] = array of(
 	* $log_config["destinations"] = []
 	* $log_config["emojies"] = []
-	* $log_config["events"] = []
+	* $log_config["events"] = []			)
 	* all arrays above should be loaded from ini files (in "config templates" folder) by parse_ini_file()
-	* !!
 	* @param  string $lang
 	* @throws \InvalidArgumentException
 	*/
@@ -217,7 +215,7 @@ class Logger
 
 	public function logs($message, $error_level = "normal")
 	{
-		// There is no support currently for custom emoji for specific message
+		// There is no support while for custom emoji for specific message
 #		if($custom_emoji === NULL) $custom_emoji = $this->emojies[$error_level];
 		$this->error = "";
 
