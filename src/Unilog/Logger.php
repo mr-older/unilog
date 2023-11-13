@@ -49,7 +49,7 @@ trait log2File
 		$reduction = $this->events[$error_level]["reduction"] ?? $error_level;
 		$release = empty($this->release) ? "" : $this->release." ";
 
-		if(!$this->appendFile($file_name, "$release[$reduction] $message")) {
+		if(!$this->appendFile($file_name, "{$release}[$reduction] $message")) {
 			$this->error = "Couldn`t write to $file_name";
 			return false;
 		}
