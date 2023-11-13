@@ -2,7 +2,7 @@
 	"name": "mr-older/unilog",
     "type": "library",
 	"license": "MIT",
-	"description": "Universal logger for logging 3",
+	"description": "Universal logger for your app",
     "homepage": "https://github.com/mr-older/unilog",
 	"keywords": [
 		"logger",
@@ -14,7 +14,7 @@
     "require": {
 		"php": "^7.0 || ^8.0",
         "telegram-bot/api": ">=2.5.0",
-		"mr-older/unidb": ">=0.0.0"
+		"mr-older/unidb": ">=0.0.2"
 	},
     "repositories": [
         {
