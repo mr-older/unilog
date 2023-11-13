@@ -47,8 +47,9 @@ trait log2File
 
 		$file_name = $path.strtolower(basename(__FILE__, '.php')).".log";
 		$reduction = $this->events[$error_level]["reduction"] ?? $error_level;
+		$release = empty($this->release) ? "" : $this->release." ";
 
-		if(!$this->appendFile($file_name, "$reduction $message")) {
+		if(!$this->appendFile($file_name, "$release$reduction $message")) {
 			$this->error = "Couldn`t write to $file_name";
 			return false;
 		}
@@ -84,14 +85,14 @@ trait log2Telegram
 		$emoji = $this->events[$error_level]["emoji"] ?? "";
 		$emoji = $this->emojies[$emoji] ?? "";
 		$chat_id = $this->destinations["telegram"]["chat_id"] ?? "";
-		$header = $this->destinations["telegram"]["header"] ?? "";
+		$header = empty($this->destinations["telegram"]["header"]) ? $this->release : $this->destinations["telegram"]["header"];
 
 		if(empty($this->telegram)) {
 			$this->telegram = new \TelegramBot\Api\BotApi($this->destinations["telegram"]["api_token"]);
 		}
 
 		if(empty($this->telegram)) {
-			$this->error ="Error starting telegram messaging";
+			$this->error = "Error starting telegram messaging";
 			return false;
 		}
 
@@ -117,12 +118,12 @@ trait log2Screen
 	}
 
 	private function out($message, $color = COLOR_REGULAR) {
-
 		$color = empty($color) ? COLOR_REGULAR : $color;
 		$end_of_line = "\n";	//'<br>'
+		$release = empty($this->release) ? "" : $this->release." ";
 
 		if(posix_ttyname(STDOUT)) {
-			print COLOR_DARK.date('H:i:s')." ".constant($color).$message.COLOR_REGULAR.$end_of_line;
+			print COLOR_DARK.date('H:i:s')." $release".constant($color).$message.COLOR_REGULAR.$end_of_line;
 		} else {
 			print $message.$end_of_line;
 		}
@@ -141,7 +142,7 @@ class Logger
 	private $emojies;
 	private $events;
     private $path;
-	public $error, $show_version = false;
+	public $error, $release = "";
 #	private $last_messages;	// Stores all kinds of last messages to know about their last time
 
     /**
@@ -217,8 +218,6 @@ class Logger
 		// There is no support while for custom emoji for specific message
 #		if($custom_emoji === NULL) $custom_emoji = $this->emojies[$error_level];
 		$this->error = "";
-
-		$message = empty($this->show_version) ? $message : "{$this->show_version} $message";
 
 		if(empty($event = $this->events[$error_level])) {
             $this->error = "No event logging set for $error_level";
