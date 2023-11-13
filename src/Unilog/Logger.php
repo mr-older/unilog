@@ -111,15 +111,14 @@ trait log2Telegram
 trait log2Screen
 {
 	public function logScreen($message, $error_level) {
-		if(empty($this->events[$error_level]["color"])) {
-			$this->out($message);
-		}
-		else	$this->out($message, $this->events[$error_level]["color"]);
+		$this->out($message, $this->events[$error_level]["color"] ?? null);
 
 		return true;
 	}
 
 	private function out($message, $color = COLOR_REGULAR) {
+
+		$color = empty($color) ? COLOR_REGULAR : $color;
 		$end_of_line = "\n";	//'<br>'
 
 		if(posix_ttyname(STDOUT)) {
@@ -218,6 +217,7 @@ class Logger
 		// There is no support while for custom emoji for specific message
 #		if($custom_emoji === NULL) $custom_emoji = $this->emojies[$error_level];
 		$this->error = "";
+
 		$message = empty($this->show_version) ? $message : "{$this->show_version} $message";
 
 		if(empty($event = $this->events[$error_level])) {
