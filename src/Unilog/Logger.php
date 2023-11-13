@@ -142,7 +142,7 @@ class Logger
 	private $emojies;
 	private $events;
     private $path;
-	public $error;
+	public $error, $show_version = false;
 #	private $last_messages;	// Stores all kinds of last messages to know about their last time
 
     /**
@@ -218,6 +218,7 @@ class Logger
 		// There is no support while for custom emoji for specific message
 #		if($custom_emoji === NULL) $custom_emoji = $this->emojies[$error_level];
 		$this->error = "";
+		$message = empty($this->show_version) ? $message : "{$this->show_version} $message";
 
 		if(empty($event = $this->events[$error_level])) {
             $this->error = "No event logging set for $error_level";
