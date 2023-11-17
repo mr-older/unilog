@@ -28,6 +28,10 @@ trait log2Database
 			return false;
 		}
 
+		if($this->isDuplicate('database', $tag, $message, $error_level)) {
+			return true;
+		}
+
 		if($this->db->query("INSERT INTO {$this->destinations["database"]["table"]} VALUES (?)", ['s', $message]) === false) {
 			$this->error = "Couldn`t write to database {$db_config["name"]}@{$db_config["host"]}: {$this->db->error}";
 			var_dump($this->error);
@@ -48,6 +52,10 @@ trait log2File
 		$file_name = $path.strtolower(basename(__FILE__, '.php')).".log";
 		$reduction = $this->events[$error_level]["reduction"] ?? $error_level;
 		$release = empty($this->release) ? "" : $this->release." ";
+
+		if($this->isDuplicate('file', $tag, $message, $error_level)) {
+			return true;
+		}
 
 		if(!$this->appendFile($file_name, "{$release}[$reduction] $message")) {
 			$this->error = "Couldn`t write to $file_name";
@@ -80,6 +88,9 @@ trait log2File
 trait log2Telegram
 {
 	public function logTelegram($message, $error_level) {
+		if($this->isDuplicate('telegram', $tag, $message, $error_level)) {
+			return true;
+		}
 		// Localization not applied
 		# $error_level_localized = static::$_langMessages[$error_level] ?? $error_level;
 		$emoji = $this->events[$error_level]["emoji"] ?? "";
@@ -111,7 +122,11 @@ trait log2Telegram
 
 trait log2Screen
 {
-	public function logScreen($message, $error_level) {
+	public function logScreen($message, $error_level, $tag) {
+		if($this->isDuplicate('screen', $tag, $message, $error_level) === true) {
+			return true;
+		}
+
 		$this->out($message, $this->events[$error_level]["color"] ?? null);
 
 		return true;
@@ -142,8 +157,8 @@ class Logger
 	private $emojies;
 	private $events;
     private $path;
+	private $last_messages = [];	// Stores all kinds of last messages to know about their last time
 	public $error, $release = "";
-#	private $last_messages;	// Stores all kinds of last messages to know about their last time
 
     /**
 	* @param  array $log_config[] = array of(
@@ -162,9 +177,9 @@ class Logger
             throw new InvalidArgumentException('No config was given');
 		}
 
-		$this->destinations = $log_config["destinations"];
-		$this->emojies = $log_config["emojies"];
-		$this->events = $log_config["events"];
+		$this->destinations = $log_config['destinations'];
+		$this->emojies = $log_config['emojies'];
+		$this->events = $log_config['events'];
 		static::$_lang = empty($lang) ? en : $lang;
 		static::$_langDir = dirname(dirname(__DIR__)).DIRECTORY_SEPARATOR."lang";
 
@@ -175,56 +190,75 @@ class Logger
         } else {
             throw new \InvalidArgumentException("Fail to load language file `$langFile`");
         }
+
+		register_shutdown_function([$this, 'flushMessages']);
+	}
+
+	public function flushMessages()
+	{
+		foreach($this->last_messages as $destination => $data) {
+			foreach($data as $tag => $message_stat) {
+				if(!isset($this->destinations[$destination])) {
+		            $this->error = "No destination `$destination` set for `{$message_stat['error_level']}` event";
+					continue;
+				}
+
+				$destination_method = "log".ucfirst($destination);
+
+				if(method_exists($this, $destination_method)) {
+					$date_time = date("H:i:s", $message_stat['since']);
+					$this->$destination_method("Since $date_time were {$message_stat['times']} `{$message_stat['message']}` tagged $tag", $message_stat['error_level'], null);
+					unset($data[$tag]);
+				}
+				else $this->error = "No logging method $destination_method";
+			}
+		}
+
+		if(!empty($this->error)) return false;
+		return true;
 	}
 
 	//
 	// Duplicates are ignored in order not to make many repeated logs
-	// If last message-copy was in $duplicates_period, new one is ignored
-	// $log_method->duplicates_period stores default duplicates_period for each logging method
-	// $this->last_messages[$string] stores time of last logging that string
+	// If last message with set tag is in $duplicates_period, new one is ignored
+	// $duplicates_period stores default duplicates_period for each logging method
 	//
-/*
-	private function isDuplicate($string, $duplicates_period = NULL, $log_method)
+	private function isDuplicate($destination_method, $tag, $message, $error_level)
 	{
-		// Trying to get the default value if paramter passed is empty
-		$duplicates_period = empty($duplicates_period)?$log_method['duplicates_period']:$duplicates_period;
+		if(empty($tag) || empty($duplicates_period = $this->destinations[$destination_method]["duplicates_period"] ?? null)) {
+			return false;
+		}
 
-		// If period can not be set, the message counts as a non-duplicate
-		if(empty($duplicates_period)) return false;
+		if(!isset($this->last_messages[$destination_method][$tag])) {
+			$this->last_messages[$destination_method][$tag] = [];
+			$this->last_messages[$destination_method][$tag]['times'] = 1;
+			$this->last_messages[$destination_method][$tag]['since'] = time();
+			$this->last_messages[$destination_method][$tag]['message'] = $message;
+			$this->last_messages[$destination_method][$tag]['error_level'] = $error_level;
+		}
+		else $this->last_messages[$destination_method][$tag]['times']++;
 
-		$now = time();
-
-		// Duplicates within stored period are ignored
-		if(!empty($this->last_messages[$string]) && $now - $this->last_messages[$string] < $duplicates_period)
-		{
-#			var_dump($this->last_messages[$string]);
-
-			$this->error = "Duplicate within {$duplicates_period}s period.";
+		if(time() - $this->last_messages[$destination_method][$tag]['since'] < $duplicates_period) {
 			return true;
 		}
 
-		// Clear old messages (>1 hour) and their periods to free memory
-		if(!empty($this->last_messages)) foreach((array) $this->last_messages as $message => &$timestamp)
-		{
-			if($now > $timestamp + 3600) unset($this->last_messages[$message]);
-		}
-
-		return false;
+		return $this->last_messages[$destination_method][$tag];
 	}
-*/
 
-	public function logs($message, $error_level = "normal")
+	// Main class function
+	public function logs($message, $error_level = "normal", $tag = null)
 	{
+		$this->error = "";
 		// There is no support while for custom emoji for specific message
 #		if($custom_emoji === NULL) $custom_emoji = $this->emojies[$error_level];
-		$this->error = "";
-
+#		$bt = debug_backtrace();
+#		$line = array_shift($bt)['line'] ?? null;
 		if(empty($event = $this->events[$error_level])) {
             $this->error = "No event logging set for $error_level";
 			return false;
 		}
 
-		foreach($event["log"] as $log)
+		foreach($event['log'] as $log)
 		{
 			if(!isset($this->destinations[$log])) {
 	            $this->error = "No destination `$log` set for `$error_level` event";
@@ -234,14 +268,13 @@ class Logger
 			$destination_method = "log".ucfirst($log);
 
 			if(method_exists($this, $destination_method)) {
-				$this->$destination_method($message, $error_level);
+				$this->$destination_method($message, $error_level, $tag);
 			}
 			else $this->error = "No logging method $destination_method";
 		}
 
 		if(!empty($this->error)) return false;
-#		// Store time when string was logged succesfully
-#		$this->last_messages[$message] = time();
+
 		return true;
 	}
 }
