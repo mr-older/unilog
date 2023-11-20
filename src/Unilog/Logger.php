@@ -64,7 +64,7 @@ trait log2File
 		}
 
 		if(!empty($this->destinations[$destination]['debug_line'])) {
-			$message = "($source_line) ".$message;
+			$message = "@$source_line ".$message;
 		}
 
 		$date_time_format = $this->destinations[$destination]['date_time_format'] ?? "H:i:s";
@@ -120,13 +120,12 @@ trait log2Telegram
 			return false;
 		}
 
-		$search = array('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
-		$replace = array('\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!');
-
 		if(!empty($this->destinations[$destination]['debug_line'])) {
 			$message = "($source_line) ".$message;
 		}
 
+		$search = array('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
+		$replace = array('\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!');
 		$message = str_replace($search, $replace, $message);
 
 		if($this->telegram->sendMessage($chat_id, "`$header`\n$emoji $message", "MarkdownV2") === false) {
