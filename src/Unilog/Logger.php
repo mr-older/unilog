@@ -34,7 +34,7 @@ trait log2Database
 		}
 
 		if(!empty($this->destinations[$destination]['debug_line'])) {
-			$message = "($source_line) ".$message;
+			$message = "$message @$source_line";
 		}
 
 		if($this->db->query("INSERT INTO {$this->destinations["database"]["table"]} VALUES (?)", ['s', $message]) === false) {
@@ -64,7 +64,7 @@ trait log2File
 		}
 
 		if(!empty($this->destinations[$destination]['debug_line'])) {
-			$message = "@$source_line ".$message;
+			$message = "$message @$source_line";
 		}
 
 		$date_time_format = $this->destinations[$destination]['date_time_format'] ?? "H:i:s";
@@ -77,7 +77,7 @@ trait log2File
 		return true;
 	}
 
-	private function appendFile($file_name, $message, $date_time_format) {
+	public function appendFile($file_name, $message, $date_time_format = null) {
 		if(($file = fopen($file_name, 'a')) === false) {
 			return false;
 		}
@@ -87,8 +87,8 @@ trait log2File
 			return false;
 		}
 
-		$message = str_replace(["\r","\n"], ["\\r","\\n"], $message);
-		$fwrite = fwrite($file, date($date_time_format)." $message\n");
+		$message = empty($date_time_format) ? "$message\n" : date($date_time_format)." ".str_replace(["\r","\n"], ["\\r","\\n"], $message)."\n";
+		$fwrite = fwrite($file, $message);
 		fclose($file);
 
 		if($fwrite === false) return false;
@@ -121,7 +121,7 @@ trait log2Telegram
 		}
 
 		if(!empty($this->destinations[$destination]['debug_line'])) {
-			$message = "($source_line) ".$message;
+			$message = "$message @$source_line";
 		}
 
 		$search = array('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
@@ -146,7 +146,7 @@ trait log2Screen
 		}
 
 		if(!empty($this->destinations[$destination]['debug_line'])) {
-			$message = "($source_line) ".$message;
+			$message = "@$source_line ".$message;
 		}
 
 		$date_time_format = $this->destinations[$destination]['date_time_format'] ?? "H:i:s";
