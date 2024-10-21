@@ -4,6 +4,10 @@ namespace UniLog;
 
 include_once "colors.php";
 
+if(!defined('STDIN'))  define('STDIN',  fopen('php://stdin',  'rb'));
+if(!defined('STDOUT')) define('STDOUT', fopen('php://stdout', 'wb'));
+if(!defined('STDERR')) define('STDERR', fopen('php://stderr', 'wb'));
+
 #
 # Custom logging destinations support via traits
 #
@@ -150,17 +154,17 @@ trait log2Screen
 		}
 
 		$date_time_format = $this->destinations[$destination]['date_time_format'] ?? "H:i:s";
-		$this->out($message, $this->events[$error_level]["color"] ?? null, $date_time_format);
+		$this->out($message, $date_time_format, $this->events[$error_level]["color"] ?? null);
 
 		return true;
 	}
 
-	private function out($message, $color = COLOR_REGULAR, $date_time_format) {
+	private function out($message, $date_time_format, $color = COLOR_REGULAR) {
 		$color = empty($color) ? COLOR_REGULAR : $color;
 		$end_of_line = "\n";	//'<br>'
 		$release = empty($this->release) ? "" : $this->release." ";
 
-		if(posix_ttyname(STDOUT)) {
+		if(function_exists("posix_ttyname") && posix_ttyname(STDOUT)) {
 			print COLOR_DARK.date($date_time_format)." $release".constant($color).$message.COLOR_REGULAR.$end_of_line;
 		} else {
 			print date($date_time_format)." $release".$message.$end_of_line;
