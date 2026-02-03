@@ -16,7 +16,7 @@ trait log2Database
 {
 	private $db;
 
-	public function logDatabase($message, $error_level, $source_line, $tag) {
+	public function logDatabase($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'database';
 		if(empty($db_config = $this->destinations[$destination])) {
 			$this->error = "Couldn`t write to $destination";
@@ -53,7 +53,7 @@ trait log2Database
 
 trait log2File
 {
-	public function logFile($message, $error_level, $source_line, $tag) {
+	public function logFile($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'file';
 		if(!file_exists(($path = $this->destinations[$destination]["path"] ?? ""))) {
 		    mkdir($path, 0777, true);
@@ -103,7 +103,7 @@ trait log2File
 
 trait log2Telegram
 {
-	public function logTelegram($message, $error_level, $source_line, $tag) {
+	public function logTelegram($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'telegram';
 		if($this->isDuplicate($destination, $tag, $message, $error_level)) {
 			return true;
@@ -132,8 +132,21 @@ trait log2Telegram
 		$replace = array('\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!');
 		$message = str_replace($search, $replace, $message);
 
-		if($this->telegram->sendMessage($chat_id, "`$header`\n$emoji $message", "MarkdownV2") === false) {
-			$this->error ="Error sending $destination message";
+		$keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($telegram_reply_keyboard);
+
+		if(is_array($telegram_reply_keyboard)) {
+			$keyboard = new \TelegramBot\Api\Types\Inline\InlineKeyboardMarkup($telegram_reply_keyboard);
+		}
+		else $keyboard = null;
+
+		try {
+			if($this->telegram->sendMessage($chat_id, "`$header`\n$emoji $message", "MarkdownV2", false, null, $keyboard) === false) {
+				$this->error ="Error sending $destination message";
+				return false;
+			}
+		}
+		catch(Exception $e) {
+			$this->error = "Error sending $destination message: ".$e->getMessage();
 			return false;
 		}
 
@@ -143,7 +156,7 @@ trait log2Telegram
 
 trait log2Screen
 {
-	public function logScreen($message, $error_level, $source_line, $tag) {
+	public function logScreen($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'screen';
 		if($this->isDuplicate($destination, $tag, $message, $error_level) === true) {
 			return true;
@@ -273,7 +286,7 @@ class Logger
 	}
 
 	// Main class function
-	public function logs($message, $error_level = "normal", $tag = null)
+	public function logs($message, $error_level = "normal", $tag = null, $telegram_reply_keyboard = null)	# [[[]]]
 	{
 		$this->error = "";
 		$bt = debug_backtrace();
@@ -284,7 +297,7 @@ class Logger
 			return false;
 		}
 
-		foreach($event['log'] as $log)
+		foreach($event['log'] as $log) 
 		{
 			if(!isset($this->destinations[$log])) {
 	            $this->error = "No destination `$log` set for `$error_level` event";
@@ -294,7 +307,7 @@ class Logger
 			$destination_method = "log".ucfirst($log);
 
 			if(method_exists($this, $destination_method)) {
-				$this->$destination_method($message, $error_level, $source_line, $tag);
+				$this->$destination_method($message, $error_level, $source_line, $tag, $telegram_reply_keyboard);
 			}
 			else $this->error = "No logging method $destination_method";
 		}
