@@ -154,6 +154,55 @@ trait log2Telegram
 	}
 }
 
+trait log2Max
+{
+	public function logMax($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
+		$destination = 'max';
+
+		if($this->isDuplicate($destination, $tag, $message, $error_level)) {
+			return true;
+		}
+
+		$emoji = $this->events[$error_level]["emoji"] ?? "";
+		$emoji = $this->emojies[$emoji] ?? "";
+		$chat_id = $this->destinations[$destination]["chat_id"] ?? "";
+		$user_id = $this->destinations[$destination]["user_id"] ?? "";
+		$header = empty($this->destinations[$destination]["header"]) ? $this->release : $this->destinations[$destination]["header"];
+
+		if(empty($this->max)) {
+			$this->max = new \UniMax\Message($user_id, $this->destinations[$destination]["api_token"]);
+		}
+#var_dump($destination_method);
+		if(empty($this->max)) {
+			$this->error = "Error starting $destination messaging";
+			return false;
+		}
+
+		if(!empty($this->destinations[$destination]['debug_line'])) {
+			$message = "$message @$source_line";
+		}
+
+		$search = array('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
+		$replace = array('\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!');
+		$message = str_replace($search, $replace, $message);
+		$keyboard = null;
+
+		try {
+			if($this->max->sendMessage($chat_id, "`$header`\n$emoji $message") === false) {
+				$this->error ="Error sending $destination message";
+				return false;
+			}
+		}
+		catch(Exception $e) {
+			$this->error = "Error sending $destination message: ".$e->getMessage();
+			return false;
+		}
+
+		return true;
+	}
+}
+
+
 trait log2Screen
 {
 	public function logScreen($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
@@ -187,7 +236,7 @@ trait log2Screen
 
 class Logger
 {
-	use log2File, log2Telegram, log2Screen, log2Database;
+	use log2File, log2Telegram, log2Screen, log2Database, log2Max;
 
     protected static $_lang;
     protected static $_langDir;
