@@ -16,7 +16,7 @@
     "require": {
 		"php": "^7.0 || ^8.0",
         "telegram-bot/api": ">=2.5.0",
-        "mr-older/unimax": ">=0.0.0",
+        "mr-older/unimax": ">=0.0.2",
 		"mr-older/unidb": ">=0.0.2"
 	},
     "repositories": [

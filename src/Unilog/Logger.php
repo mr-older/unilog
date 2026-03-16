@@ -43,7 +43,6 @@ trait log2Database
 
 		if($this->db->query("INSERT INTO {$this->destinations["database"]["table"]} VALUES (?)", ['s', $message]) === false) {
 			$this->error = "Couldn`t write to $destination {$db_config["name"]}@{$db_config["host"]}: {$this->db->error}";
-			var_dump($this->error);
 			return false;
 		}
 
@@ -172,7 +171,7 @@ trait log2Max
 		if(empty($this->max)) {
 			$this->max = new \UniMax\Message($user_id, $this->destinations[$destination]["api_token"]);
 		}
-#var_dump($destination_method);
+
 		if(empty($this->max)) {
 			$this->error = "Error starting $destination messaging";
 			return false;
