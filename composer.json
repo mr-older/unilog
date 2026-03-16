@@ -10,6 +10,7 @@
 		"logging-framework",
 		"log-library",
 		"telegram",
+		"max",
 		"php"
 	],
     "require": {
