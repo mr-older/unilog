@@ -102,6 +102,8 @@ trait log2File
 
 trait log2Telegram
 {
+	private $telegram;
+
 	public function logTelegram($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'telegram';
 		if($this->isDuplicate($destination, $tag, $message, $error_level)) {
@@ -155,6 +157,8 @@ trait log2Telegram
 
 trait log2Max
 {
+	private $max;
+
 	public function logMax($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
 		$destination = 'max';
 
@@ -169,7 +173,7 @@ trait log2Max
 		$header = empty($this->destinations[$destination]["header"]) ? $this->release : $this->destinations[$destination]["header"];
 
 		if(empty($this->max)) {
-			$this->max = new \UniMax\Message($user_id, $this->destinations[$destination]["api_token"]);
+			$this->max = new \Unimax\Message($user_id, $this->destinations[$destination]["api_token"]);
 		}
 
 		if(empty($this->max)) {
