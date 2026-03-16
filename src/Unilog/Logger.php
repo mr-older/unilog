@@ -105,7 +105,9 @@ trait log2Telegram
 	private $telegram;
 
 	public function logTelegram($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
+
 		$destination = 'telegram';
+
 		if($this->isDuplicate($destination, $tag, $message, $error_level)) {
 			return true;
 		}
@@ -160,6 +162,7 @@ trait log2Max
 	private $max;
 
 	public function logMax($message, $error_level, $source_line, $tag, $telegram_reply_keyboard) {
+
 		$destination = 'max';
 
 		if($this->isDuplicate($destination, $tag, $message, $error_level)) {
@@ -185,10 +188,7 @@ trait log2Max
 			$message = "$message @$source_line";
 		}
 
-		$search = array('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!');
-		$replace = array('\_', '\*', '\[', '\]', '\(', '\)', '\~', '\`', '\>', '\#', '\+', '\-', '\=', '\|', '\{', '\}', '\.', '\!');
-		$message = str_replace($search, $replace, $message);
-		$keyboard = null;
+#		$keyboard = null;
 
 		try {
 			if($this->max->sendMessage($chat_id, "`$header`\n$emoji $message") === false) {
